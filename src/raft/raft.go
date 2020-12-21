@@ -23,7 +23,14 @@ import "labrpc"
 // import "bytes"
 // import "encoding/gob"
 import "fmt"
+import "time"
 
+// define
+const(
+    follower = 1
+    candidate = 2
+    leader = 3
+)
 
 //
 // as each Raft peer becomes aware that successive log entries are
@@ -35,6 +42,12 @@ type ApplyMsg struct {
     Command     interface{}
     UseSnapshot bool   // ignore for lab2; only used in lab3
     Snapshot    []byte // ignore for lab2; only used in lab3
+}
+
+type Entry struct{
+    Command interface{}
+    Term int
+    Index int
 }
 
 //
@@ -50,6 +63,22 @@ type Raft struct {
     // Look at the paper's Figure 2 for a description of what
     // state a Raft server must maintain.
 
+    // 1: Persistent state on all servers
+    currentTerm int
+    votedFor int
+    log []Entry
+    
+    // 2: Volatile state on all servers
+    commitIndex int
+    lastApplied int
+
+    // 3: Volatile state on leaders
+    nextIndex []int
+    matchIndex []int
+
+    // others
+    killed bool
+    nodeState int
 }
 
 // return currentTerm and whether this server
@@ -98,6 +127,10 @@ func (rf *Raft) readPersist(data []byte) {
 //
 type RequestVoteArgs struct {
     // Your data here.
+    term int;
+    candidateId int;
+    lastLogIndex int;
+    lastLogTerm int;
 }
 
 //
@@ -105,6 +138,8 @@ type RequestVoteArgs struct {
 //
 type RequestVoteReply struct {
     // Your data here.
+    term int;
+    voteGranted int;
 }
 
 //
@@ -112,6 +147,7 @@ type RequestVoteReply struct {
 //
 func (rf *Raft) RequestVote(args RequestVoteArgs, reply *RequestVoteReply) {
     // Your code here.
+
 }
 
 //
@@ -136,7 +172,25 @@ func (rf *Raft) sendRequestVote(server int, args RequestVoteArgs, reply *Request
     return ok
 }
 
+type AppendEntriesArgs struct{
+    term int
+    leaderId int
+    prevLogIndex int
+    prevLogTerm int
+    entries []Entry
+    leaderCommit int
+}
+type AppendEntriesReply struct{
+    term int
+    success bool
+}
+func (rf *Raft) AppendEntries(args AppendEntriesArgs, reply *AppendEntriesReply){
 
+}
+func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *RequestVoteReply) bool{
+    ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
+    return ok
+}
 //
 // the service using Raft (e.g. a k/v server) wants to start
 // agreement on the next command to be appended to Raft's log. if this
@@ -155,6 +209,8 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
     term := -1
     isLeader := true
 
+    fmt.Printf("\tCalled Start %d\n", rf.me)
+
 
     return index, term, isLeader
 }
@@ -167,6 +223,8 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 //
 func (rf *Raft) Kill() {
     // Your code here, if desired.
+    fmt.Printf("\tCalled Kill %d\n", rf.me)
+    rf.killed = true
 }
 
 //
@@ -186,12 +244,39 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
     rf.persister = persister
     rf.me = me
 
-    fmt.Printf("\tCalled Make\n")
+    
     // Your initialization code here.
+    fmt.Printf("\tCalled Make %d\n", rf.me)
 
+    rf.currentTerm = -1
+    rf.votedFor = -1
+    rf.log = make([]Entry,1)
+    rf.commitIndex = 0
+    rf.lastApplied = 0
+    rf.nextIndex = make([]int, len(peers))
+    rf.matchIndex = make([]int, len(peers))
+    // others
+    rf.killed = false
+    rf.nodeState = follower
     // initialize from state persisted before a crash
     rf.readPersist(persister.ReadRaftState())
 
+    go func(){
+        for (rf.killed == false){
+            time.Sleep(100*time.Millisecond)
+            switch rf.nodeState{
+            case follower:
+                fmt.Printf("\tfollower raft%d\n", rf.me)
+            case candidate:
+                fmt.Printf("\tcandidate raft%d\n", rf.me)
+            case leader:
+                fmt.Printf("\tleader raft%d\n", rf.me)
+            default:
+                fmt.Printf("\t!!!!! nodeState error: raft%d\n", rf.me)
+            }
+        }
+        fmt.Printf("\tKilled! raft%d\n", rf.me)
 
+    }()
     return rf
 }
