@@ -22,13 +22,14 @@ import "labrpc"
 
 // import "bytes"
 // import "encoding/gob"
+
 import "time"
 
 // define
 const(
-    follower = 1
-    candidate = 2
-    leader = 3
+    FOLLOWER = 1
+    CANDIDATE = 2
+    LEADER = 3
 )
 
 //
@@ -78,6 +79,7 @@ type Raft struct {
     // others
     killed bool
     nodeState int
+    applyCh chan ApplyMsg
 }
 
 // return currentTerm and whether this server
@@ -86,7 +88,12 @@ func (rf *Raft) GetState() (int, bool) {
 
     var term int
     var isleader bool
-    // Your code here.
+    
+    term = rf.currentTerm
+    isleader = false
+    if (rf.nodeState == LEADER){
+        isleader = true
+    }
     return term, isleader
 }
 
@@ -98,12 +105,13 @@ func (rf *Raft) GetState() (int, bool) {
 func (rf *Raft) persist() {
     // Your code here.
     // Example:
-    // w := new(bytes.Buffer)
-    // e := gob.NewEncoder(w)
-    // e.Encode(rf.xxx)
-    // e.Encode(rf.yyy)
-    // data := w.Bytes()
-    // rf.persister.SaveRaftState(data)
+    w := new(bytes.Buffer)
+    e := gob.NewEncoder(w)
+    e.Encode(rf.currentTerm)
+    e.Encode(rf.votedFor)
+    e.Encode(rf.log)
+    data := w.Bytes()
+    rf.persister.SaveRaftState(data)
 }
 
 //
@@ -112,10 +120,11 @@ func (rf *Raft) persist() {
 func (rf *Raft) readPersist(data []byte) {
     // Your code here.
     // Example:
-    // r := bytes.NewBuffer(data)
-    // d := gob.NewDecoder(r)
-    // d.Decode(&rf.xxx)
-    // d.Decode(&rf.yyy)
+    r := bytes.NewBuffer(data)
+    d := gob.NewDecoder(r)
+    d.Decode(&rf.currentTerm)
+    d.Decode(&rf.votedFor)
+    d.Decode(&rf.log)
 }
 
 
@@ -170,7 +179,9 @@ func (rf *Raft) sendRequestVote(server int, args RequestVoteArgs, reply *Request
     ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
     return ok
 }
-
+//-------------------//
+//AppendEntries------//
+//-------------------//
 type AppendEntriesArgs struct{
     term int
     leaderId int
@@ -208,8 +219,6 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
     term := -1
     isLeader := true
 
-    DPrintf("\tCalled Start %d\n", rf.me)
-
 
     return index, term, isLeader
 }
@@ -222,7 +231,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 //
 func (rf *Raft) Kill() {
     // Your code here, if desired.
-    DPrintf("\tCalled Kill %d\n", rf.me)
+    DPrintf("\tRaftNode:%d Called Kill\n", rf.me)
     rf.killed = true
 }
 
@@ -245,7 +254,7 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
 
     
     // Your initialization code here.
-    DPrintf("\tCalled Make %d\n", rf.me)
+    DPrintf("\tRaftNode:%d Called Make\n", rf.me)
 
     rf.currentTerm = -1
     rf.votedFor = -1
@@ -256,7 +265,7 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
     rf.matchIndex = make([]int, len(peers))
     // others
     rf.killed = false
-    rf.nodeState = follower
+    rf.nodeState = FOLLOWER
     // initialize from state persisted before a crash
     rf.readPersist(persister.ReadRaftState())
 
@@ -264,17 +273,17 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
         for (rf.killed == false){
             time.Sleep(100*time.Millisecond)
             switch rf.nodeState{
-            case follower:
-                DPrintf("\tfollower raft%d\n", rf.me)
-            case candidate:
-                DPrintf("\tcandidate raft%d\n", rf.me)
-            case leader:
-                DPrintf("\tleader raft%d\n", rf.me)
+            case FOLLOWER:
+                DPrintf("\tFOLLOWER raft%d\n", rf.me)
+            case CANDIDATE:
+                DPrintf("\tCANDIDATE raft%d\n", rf.me)
+            case LEADER:
+                DPrintf("\tLEADER raft%d\n", rf.me)
             default:
-                DPrintf("\t!!!!! nodeState error: raft%d\n", rf.me)
+                DPrintf("\t!!!!! nodeState error: RaftNode:%d\n", rf.me)
             }
         }
-        DPrintf("\tKilled! raft%d\n", rf.me)
+        DPrintf("\tRaft Node:%d is Killed!\n", rf.me)
 
     }()
     return rf
