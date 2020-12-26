@@ -20,8 +20,8 @@ package raft
 import "sync"
 import "labrpc"
 
-// import "bytes"
-// import "encoding/gob"
+import "bytes"
+import "encoding/gob"
 
 import "time"
 
@@ -135,10 +135,10 @@ func (rf *Raft) readPersist(data []byte) {
 //
 type RequestVoteArgs struct {
     // Your data here.
-    term int
-    candidateId int
-    lastLogIndex int
-    lastLogTerm int
+    Term int
+    CandidateId int
+    LastLogIndex int
+    LastLogTerm int
 }
 
 //
@@ -146,8 +146,8 @@ type RequestVoteArgs struct {
 //
 type RequestVoteReply struct {
     // Your data here.
-    term int
-    voteGranted bool
+    Term int
+    VoteGranted bool
 }
 
 //
@@ -183,16 +183,16 @@ func (rf *Raft) sendRequestVote(server int, args RequestVoteArgs, reply *Request
 //AppendEntries------//
 //-------------------//
 type AppendEntriesArgs struct{
-    term int
-    leaderId int
-    prevLogIndex int
-    prevLogTerm int
-    entries []Entry
-    leaderCommit int
+    Term int
+    LeaderId int
+    PrevLogIndex int
+    PrevLogTerm int
+    Entries []Entry
+    LeaderCommit int
 }
 type AppendEntriesReply struct{
-    term int
-    success bool
+    Term int
+    Success bool
 }
 func (rf *Raft) AppendEntries(args AppendEntriesArgs, reply *AppendEntriesReply){
 
@@ -219,7 +219,6 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
     term := -1
     isLeader := true
 
-
     return index, term, isLeader
 }
 
@@ -231,7 +230,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 //
 func (rf *Raft) Kill() {
     // Your code here, if desired.
-    DPrintf("\tRaftNode:%d Called Kill\n", rf.me)
+    DPrintf("\tRaft Node:%d Called Kill\n", rf.me)
     rf.killed = true
 }
 
@@ -254,7 +253,7 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
 
     
     // Your initialization code here.
-    DPrintf("\tRaftNode:%d Called Make\n", rf.me)
+    DPrintf("\tRaft Node:%d Called Make\n", rf.me)
 
     rf.currentTerm = -1
     rf.votedFor = -1
@@ -269,22 +268,24 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
     // initialize from state persisted before a crash
     rf.readPersist(persister.ReadRaftState())
 
-    go func(){
-        for (rf.killed == false){
-            time.Sleep(100*time.Millisecond)
-            switch rf.nodeState{
-            case FOLLOWER:
-                DPrintf("\tFOLLOWER raft%d\n", rf.me)
-            case CANDIDATE:
-                DPrintf("\tCANDIDATE raft%d\n", rf.me)
-            case LEADER:
-                DPrintf("\tLEADER raft%d\n", rf.me)
-            default:
-                DPrintf("\t!!!!! nodeState error: RaftNode:%d\n", rf.me)
-            }
-        }
-        DPrintf("\tRaft Node:%d is Killed!\n", rf.me)
-
-    }()
+    go rf.MainLoop()
+    
     return rf
+}
+
+func (rf *Raft) MainLoop(){
+    for (rf.killed == false){
+        time.Sleep(100*time.Millisecond)
+        switch rf.nodeState{
+        case FOLLOWER:
+            DPrintf("mainloop: \tRaft Node:%d \t state: FOLLOWER\n", rf.me)
+        case CANDIDATE:
+            DPrintf("mainloop: \tRaft Node:%d \t state: CANDIDATE\n", rf.me)
+        case LEADER:
+            DPrintf("mainloop: \tRaft Node:%d \t state: LEADER\n", rf.me)
+        default:
+            DPrintf("\n!!!!! nodeState error!!!!!!!Raft Node:%d\n", rf.me)
+        }
+    }
+    DPrintf("\tRaft Node:%d is Killed!\n", rf.me)
 }
