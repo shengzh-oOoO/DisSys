@@ -22,7 +22,6 @@ import "labrpc"
 
 // import "bytes"
 // import "encoding/gob"
-import "fmt"
 import "time"
 
 // define
@@ -209,7 +208,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
     term := -1
     isLeader := true
 
-    fmt.Printf("\tCalled Start %d\n", rf.me)
+    DPrintf("\tCalled Start %d\n", rf.me)
 
 
     return index, term, isLeader
@@ -223,7 +222,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 //
 func (rf *Raft) Kill() {
     // Your code here, if desired.
-    fmt.Printf("\tCalled Kill %d\n", rf.me)
+    DPrintf("\tCalled Kill %d\n", rf.me)
     rf.killed = true
 }
 
@@ -246,7 +245,7 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
 
     
     // Your initialization code here.
-    fmt.Printf("\tCalled Make %d\n", rf.me)
+    DPrintf("\tCalled Make %d\n", rf.me)
 
     rf.currentTerm = -1
     rf.votedFor = -1
@@ -266,16 +265,16 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
             time.Sleep(100*time.Millisecond)
             switch rf.nodeState{
             case follower:
-                fmt.Printf("\tfollower raft%d\n", rf.me)
+                DPrintf("\tfollower raft%d\n", rf.me)
             case candidate:
-                fmt.Printf("\tcandidate raft%d\n", rf.me)
+                DPrintf("\tcandidate raft%d\n", rf.me)
             case leader:
-                fmt.Printf("\tleader raft%d\n", rf.me)
+                DPrintf("\tleader raft%d\n", rf.me)
             default:
-                fmt.Printf("\t!!!!! nodeState error: raft%d\n", rf.me)
+                DPrintf("\t!!!!! nodeState error: raft%d\n", rf.me)
             }
         }
-        fmt.Printf("\tKilled! raft%d\n", rf.me)
+        DPrintf("\tKilled! raft%d\n", rf.me)
 
     }()
     return rf
