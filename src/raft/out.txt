@@ -1,319 +1,197 @@
-	Called Make 0
-	Called Make 1
-	Called Make 2
+2020/12/26 23:27:55 No.0	 Make
+2020/12/26 23:27:55 No.0	 Make
+2020/12/26 23:27:55 No.0	 Make
 Test: initial election ...
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Called Kill 0
-	Called Kill 1
-	Called Kill 2
+2020/12/26 23:27:55 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:55 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:55 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:55 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:55 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:55 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:56 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:57 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:58 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:27:59 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No.0	 Kill
+2020/12/26 23:28:00 No.1	 Kill
+2020/12/26 23:28:00 No.2	 Kill
 --- FAIL: TestInitialElection (5.01s)
     config.go:286: expected one leader, got none
-	Called Make 0
-	Called Make 1
-	Called Make 2
+2020/12/26 23:28:00 No.0	 Make
+2020/12/26 23:28:00 No.0	 Make
+2020/12/26 23:28:00 No.0	 Make
 Test: election after network failure ...
-	Loop! raft1
-	Killed! raft1
-	Loop! raft0
-	Killed! raft0
-	Loop! raft2
-	Killed! raft2
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft1
-	Loop! raft0
-	Loop! raft2
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft2
-	Loop! raft1
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Loop! raft0
-	Loop! raft1
-	Loop! raft2
-	Called Kill 0
-	Called Kill 1
-	Called Kill 2
+2020/12/26 23:28:00 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:00 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:01 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:02 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:03 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:04 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:1	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:2	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No:0	 F Timeout and doesn't receive HeartBeat
+2020/12/26 23:28:05 No.0	 Kill
+2020/12/26 23:28:05 No.1	 Kill
+2020/12/26 23:28:05 No.2	 Kill
 --- FAIL: TestReElection (5.01s)
     config.go:286: expected one leader, got none
 FAIL
