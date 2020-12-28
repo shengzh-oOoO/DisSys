@@ -27,9 +27,10 @@ import "time"
 import "math/rand"
 
 const (
-	ELETIMEMIN = 150
-	ELETIMEMAX = 300
+	ELETIMEMIN = 300
+	ELETIMEMAX = 600
 	HEARTBEAT = 100
+	RPCTIMEOUT = 50
 )
 
 const (
@@ -37,7 +38,17 @@ const (
 	CANDIDATE = 2
 	LEADER = 3
 )
-
+func StringRole(i int) string{
+	switch i{
+	case FOLLOWER:
+		return "FOLLOWER"
+	case CANDIDATE:
+		return "CANDIDATE"
+	case LEADER:
+		return "LEADER"
+	}
+	return "ERROR"
+}
 //
 // as each Raft peer becomes aware that successive log entries are
 // committed, the peer should send an ApplyMsg to the service (or
@@ -93,12 +104,12 @@ func (rf *Raft) GetState() (int, bool) {
 	var isleader bool
 	// Your code here.
 	rf.mu.Lock()
-	defer rf.mu.Unlock()
 	term = rf.currentTerm
 	isleader = false
 	if (rf.role == LEADER){
 		isleader = true
 	}
+	rf.mu.Unlock()
 	return term, isleader
 }
 
@@ -125,8 +136,6 @@ func (rf *Raft) persist() {
 func (rf *Raft) readPersist(data []byte) {
 	// Your code here.
 	// Example:
-	rf.mu.Lock()
-	defer rf.mu.Unlock()
 	r := bytes.NewBuffer(data)
 	d := gob.NewDecoder(r)
 	d.Decode(&rf.currentTerm)
@@ -162,10 +171,10 @@ type RequestVoteReply struct {
 //
 func (rf *Raft) RequestVote(args RequestVoteArgs, reply *RequestVoteReply) {
 	// Your code here.
+	// DPrintf("Received RequestVote Node:%d, Term:%d, Role: %s, from Node:%d Term: %d", rf.me, rf.currentTerm, StringRole(rf.role), args.CandidateId, args.Term)
+	// DPrintf("--%d \t %d \t %d", rf.votedFor, rf.log[len(rf.log)-1].Term, rf.log[len(rf.log)-1].Index)
+	// DPrintf("--%d \t %d \t %d \t %d", args.Term, args.CandidateId, args.LastLogTerm, args.LastLogIndex)
 	rf.mu.Lock()
-	defer rf.mu.Unlock()
-	defer rf.persist()
-
 	if rf.currentTerm > args.Term {
 		reply.Term = rf.currentTerm
 		reply.VoteGranted = false
@@ -176,8 +185,7 @@ func (rf *Raft) RequestVote(args RequestVoteArgs, reply *RequestVoteReply) {
 			rf.role = FOLLOWER
 			rf.setRoleCh <- true
 		}
-
-		reply.Term = args.Term
+		reply.Term = rf.currentTerm
 
 		if (rf.votedFor == -1 || rf.votedFor == args.CandidateId) && (rf.log[len(rf.log)-1].Term < args.LastLogTerm || (rf.log[len(rf.log)-1].Term == args.LastLogTerm && rf.log[len(rf.log)-1].Index <= args.LastLogIndex)){
 			rf.resetELETimer <- true
@@ -186,7 +194,9 @@ func (rf *Raft) RequestVote(args RequestVoteArgs, reply *RequestVoteReply) {
 		}else{
 			reply.VoteGranted = false
 		}
-	}	
+	}
+	rf.persist()
+	rf.mu.Unlock()
 }
 
 //
@@ -215,9 +225,11 @@ func (rf *Raft) sendRequestVote(server int, args RequestVoteArgs, reply *Request
 	select {
 	case ret := <- tmpCh:
 		return ret
-	case <-time.After(HEARTBEAT * time.Millisecond):
+	case <-time.After(RPCTIMEOUT * time.Millisecond):
 		return false
 	}
+	// ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
+	// return ok
 }
 
 //----------------------
@@ -235,78 +247,78 @@ type AppendEntriesReply struct {
 	NextIndex int
 }
 func (rf *Raft) AppendEntries(args AppendEntriesArgs, reply *AppendEntriesReply) {
-	rf.mu.Lock()
-	defer rf.mu.Unlock()
-	defer rf.persist()
+	// DPrintf("Received AppendEntries Node:%d, Term:%d, Role: %s, from Node:%d Term: %d", rf.me, rf.currentTerm, StringRole(rf.role), args.LeaderId, args.Term)
 
-	if args.Term < rf.currentTerm {
-		reply.Term = rf.currentTerm
-		reply.Success = false
-		return
-	}
+	rf.mu.Lock()
 
 	rf.resetELETimer <- true
-	if rf.currentTerm < args.Term {
-		rf.currentTerm = args.Term
-		rf.votedFor = -1
-		rf.role = FOLLOWER
-		rf.setRoleCh <- true
-	}
 
-	reply.Term = args.Term
-
-	if len(rf.log) <= args.PrevLogIndex {
+	if rf.currentTerm > args.Term {
+		reply.Term = rf.currentTerm
 		reply.Success = false
-		reply.NextIndex = len(rf.log)
-		return
-	}
-
-	if rf.log[args.PrevLogIndex].Term != args.PrevLogTerm {
-		reply.Success = false
-		nextIndex := args.PrevLogIndex
-		failTerm := rf.log[nextIndex].Term
-		for rf.log[nextIndex].Term == failTerm {
-			nextIndex--
-		}
-		reply.NextIndex = nextIndex + 1
-		return
-	}
-	var updateLogIndex int
-	if len(args.Entry) != 0 {
-		for i, entry := range args.Entry {
-			curIndex := entry.Index
-			if curIndex < len(rf.log) {
-				if curIndex > rf.log[len(rf.log)-1].Index {
-				}
-				if entry.Term != rf.log[curIndex].Term {
-					rf.log = append(rf.log[:curIndex], entry)
-				}
-			} else {
-				rf.log = append(rf.log, args.Entry[i:]...)
-				break
+	}else{
+		if rf.currentTerm < args.Term {
+			rf.currentTerm = args.Term
+			rf.votedFor = args.LeaderId
+			if (rf.role != FOLLOWER){
+				rf.role = FOLLOWER
+				rf.setRoleCh <- true
 			}
 		}
-		reply.NextIndex = rf.log[len(rf.log)-1].Index + 1
-		updateLogIndex = reply.NextIndex - 1
-	} else {
-		reply.NextIndex = args.PrevLogIndex + 1
-		updateLogIndex = args.PrevLogIndex
-	}
-	reply.Success = true
-	
-	oldVal := rf.commitIndex
-	if args.LeaderCommit > rf.commitIndex {
-		if args.LeaderCommit < updateLogIndex {
-			rf.commitIndex = args.LeaderCommit
-		} else {
-			rf.commitIndex = updateLogIndex
+
+		reply.Term = rf.currentTerm
+
+		if len(rf.log) <= args.PrevLogIndex {
+			reply.Success = false
+			reply.NextIndex = len(rf.log)
+		}else if rf.log[args.PrevLogIndex].Term != args.PrevLogTerm {
+			reply.Success = false
+			nextIndex := args.PrevLogIndex
+			failTerm := rf.log[nextIndex].Term
+			for rf.log[nextIndex].Term == failTerm {
+				nextIndex--
+			}
+			reply.NextIndex = nextIndex + 1
+		}else{
+			reply.Success = true
+			if len(args.Entry) != 0 {
+				for i:=0; i < len(args.Entry); i++ {
+					entry := args.Entry[i]
+					curIndex := entry.Index
+					if curIndex < len(rf.log) {
+						if entry.Term != rf.log[curIndex].Term {
+							rf.log = append(rf.log[:curIndex], entry)
+						}
+					}else {
+						rf.log = append(rf.log, args.Entry[i:]...)
+						break
+					}
+				}
+				reply.NextIndex = rf.log[len(rf.log)-1].Index + 1
+			}else {
+				reply.NextIndex = args.PrevLogIndex + 1
+			}
+
+			commitUntil := rf.commitIndex
+			if args.LeaderCommit > rf.commitIndex {
+				if args.LeaderCommit < reply.NextIndex - 1 {
+					commitUntil = args.LeaderCommit
+				}else {
+					commitUntil = reply.NextIndex - 1
+				}
+			}
+			for i:=rf.commitIndex+1 ; i <= commitUntil; i++ {
+				rf.applyCh <- ApplyMsg{i, rf.log[i].Command, false, nil}
+				rf.lastApplied = i
+			}
+			// if rf.commitIndex < commitUntil{
+			// 	DPrintf("Received AppendEntries Node:%d, Term:%d, Role: %s CommittedIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), commitUntil)
+			// }
+			rf.commitIndex = commitUntil
 		}
 	}
-	for oldVal++; oldVal <= rf.commitIndex; oldVal++ {
-		rf.applyCh <- ApplyMsg{Index:oldVal, Command:rf.log[oldVal].Command}
-		rf.lastApplied = oldVal
-	}
-
+	rf.persist()
+	rf.mu.Unlock()
 }
 func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *AppendEntriesReply) bool {
 	tmpCh := make(chan bool)
@@ -317,9 +329,11 @@ func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *App
 	select {
 	case ret := <- tmpCh:
 		return ret
-	case <-time.After(HEARTBEAT * time.Millisecond):
+	case <-time.After(RPCTIMEOUT * time.Millisecond):
 		return false
 	}
+	// ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
+	// return ok
 }
 //----------------------
 
@@ -338,8 +352,7 @@ func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *App
 //
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.mu.Lock()
-	defer rf.mu.Unlock()
-	defer rf.persist()
+
 	index := len(rf.log)
 	term := rf.currentTerm
 	isLeader := false
@@ -348,6 +361,8 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		entry := LogEntry{command, term, index}
 		rf.log = append(rf.log, entry)
 	}
+	rf.persist()
+	rf.mu.Unlock()
 	return index, term, isLeader
 }
 
@@ -415,15 +430,15 @@ func (rf *Raft) MainLoop() {
 	for !rf.isKilled {
 		switch rf.role {
 		case FOLLOWER:
-			DPrintf("No:%d Term:%d is FOLLOWER\n", rf.me, rf.currentTerm)
+			// DPrintf("MainLoop Node:%d, Term:%d, Role: %s", rf.me, rf.currentTerm, StringRole(rf.role))
 			<-rf.setRoleCh
 		case CANDIDATE:
-			DPrintf("No:%d Term:%d is CANDIDATE\n", rf.me, rf.currentTerm)
+			// DPrintf("MainLoop Node:%d, Term:%d, Role: %s", rf.me, rf.currentTerm, StringRole(rf.role))
 			go rf.LeaderElection()
 			<-rf.setRoleCh
 		case LEADER:
-			DPrintf("No:%d Term:%d is LEADER\n", rf.me, rf.currentTerm)
-			rf.LeaderFunc()
+			// DPrintf("MainLoop Node:%d, Term:%d, Role: %s", rf.me, rf.currentTerm, StringRole(rf.role))
+			go rf.LeaderFunc()
 			<-rf.setRoleCh		
 		}
 	}
@@ -436,12 +451,15 @@ func (rf *Raft) ElectionTimer() {
 		select{
 		case <- rf.resetELETimer:
 		case <- timer.C:
+			// DPrintf("ElectionTimer TimeOut Node:%d, Term:%d, Role: %s", rf.me, rf.currentTerm, StringRole(rf.role))
 			rf.role = CANDIDATE
 			rf.setRoleCh <- true
 		}
 	}
 }
 func (rf *Raft) LeaderElection() {
+	// DPrintf("LeaderElection Start Node:%d, Term:%d, Role: %s", rf.me, rf.currentTerm, StringRole(rf.role))
+
 	rf.mu.Lock()
 	votingCh := make(chan bool, len(rf.peers))
 	isVoting := true
@@ -453,34 +471,42 @@ func (rf *Raft) LeaderElection() {
 	rf.mu.Unlock()
 	
 	for i:=0; i<len(rf.peers); i++ {
-		if rf.me != i {
-			go func (i int) {
-				if !isVoting {
-					return
-				}
-				if rf.role != CANDIDATE {
+		if (i == rf.me){
+			continue
+		}
+
+		go func (i int) {
+			if !isVoting {
+				return
+			}
+			if rf.role != CANDIDATE {
+				isVoting = false
+				return
+			}
+			reply := RequestVoteReply{}
+			if rf.sendRequestVote(i, args, &reply) && isVoting {
+				if args.Term < reply.Term {
+					// DPrintf("LeaderElection ForcedQuit Node:%d, Term:%d, Role: %s // Node: %d Term: %d", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.Term)
+					rf.mu.Lock()
+					rf.currentTerm = reply.Term
+					rf.votedFor = -1
+					rf.role = FOLLOWER
 					isVoting = false
+					rf.persist()
+					rf.mu.Unlock()
 					return
-				}
-				reply := RequestVoteReply{}
-				if rf.sendRequestVote(i, args, &reply) && isVoting {
-					if args.Term < reply.Term {
-						rf.mu.Lock()
-						rf.currentTerm = reply.Term
-						rf.votedFor = -1
-						rf.role = FOLLOWER
-						rf.persist()
-						isVoting = false
-						rf.mu.Unlock()
-						return
-					} else if reply.VoteGranted {
-						votingCh <- true
-					}
-				} else if isVoting {
+				}else if reply.VoteGranted {
+					// DPrintf("LeaderElection AgreeVote Node:%d, Term:%d, Role: %s // Node: %d Term: %d", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.Term)
+					votingCh <- true
+				}else if !reply.VoteGranted {
+					// DPrintf("LeaderElection DisagreeVote Node:%d, Term:%d, Role: %s // Node: %d Term: %d", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.Term)
 					votingCh <- false
 				}
-			}(i)
-		}
+			} else if isVoting {
+				// DPrintf("LeaderElection TimeOut-DisagreeVote Node:%d, Term:%d, Role: %s // Node: %d Term: %d", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.Term)
+				votingCh <- false
+			}
+		}(i)
 	}
 
 	agree := 0
@@ -497,12 +523,15 @@ func (rf *Raft) LeaderElection() {
 				disagree++
 			}
 			if agree >= len(rf.peers)/2 + 1 {
+				// DPrintf("LeaderElection Result:LEADER Node:%d, Term:%d, Role: %s agree: %d disagree: %d total: %d", rf.me, rf.currentTerm, StringRole(rf.role), agree, disagree, len(rf.peers))
 				rf.role = LEADER
 				isVoting = false
 			}else if disagree >= len(rf.peers)/2 + 1 {
+				// DPrintf("LeaderElection Result:FOLLOWER Node:%d, Term:%d, Role: %s agree: %d disagree: %d total: %d", rf.me, rf.currentTerm, StringRole(rf.role), agree, disagree, len(rf.peers))
 				rf.role = FOLLOWER
 				isVoting = false
 			}else if agree + disagree == len(rf.peers){
+				// DPrintf("LeaderElection Result:CANDIDATE Node:%d, Term:%d, Role: %s agree: %d disagree: %d total: %d", rf.me, rf.currentTerm, StringRole(rf.role), agree, disagree, len(rf.peers))
 				rf.role = CANDIDATE
 				isVoting = false
 			}
@@ -510,44 +539,47 @@ func (rf *Raft) LeaderElection() {
 	}
 	time.Sleep(10*time.Millisecond)
 	close(votingCh)
+	// DPrintf("LeaderElection End Node:%d, Term:%d, Role: %s", rf.me, rf.currentTerm, StringRole(rf.role))
 	rf.setRoleCh <- true
 }
 func (rf *Raft) LeaderFunc() {
-	for i := range rf.peers {
+	for i:=0; i<len(rf.peers); i++ {
 		rf.nextIndex[i] = rf.log[len(rf.log)-1].Index + 1
 		rf.matchIndex[i] = 0
 	}
+
 	for i:=0; i<len(rf.peers); i++ {
 		if i == rf.me {
 			go func() {
 				for rf.role == LEADER {
+					
+					rf.mu.Lock()
 					rf.resetELETimer <- true
 
-					rf.mu.Lock()
-
-					oldIndex := rf.commitIndex
-					newIndex := oldIndex
-					for i := len(rf.log)-1; rf.log[i].Index>oldIndex && rf.log[i].Term==rf.currentTerm; i-- {
-						countServer := 1
-						for server := range rf.peers {
-							if server != rf.me && rf.matchIndex[server] >= rf.log[i].Index {
-								countServer++
+					commitUntil := rf.commitIndex
+					for j := len(rf.log)-1; rf.log[j].Index>rf.commitIndex && rf.log[j].Term==rf.currentTerm; j-- {
+						cnt := 1
+						for k:=0; k<len(rf.peers); k++ {
+							if k != rf.me && rf.matchIndex[k] >= rf.log[j].Index {
+								cnt++
 							}
 						}
-						if countServer * 2 > len(rf.peers) {
-							newIndex = rf.log[i].Index
+						if cnt >= len(rf.peers)/2 + 1 {
+							commitUntil = rf.log[j].Index
 							break
 						}
 					}
-					if oldIndex != newIndex {
-						rf.commitIndex = newIndex
-						for i := oldIndex + 1; i <= newIndex; i++ {
-							rf.applyCh <- ApplyMsg{Index:i, Command:rf.log[i].Command}
-							rf.lastApplied = i
-						}
+					for j := rf.commitIndex + 1; j <= commitUntil; j++ {
+						rf.applyCh <- ApplyMsg{j, rf.log[j].Command, false, nil}
 					}
-					rf.mu.Unlock()
+					// if rf.commitIndex < commitUntil{
+					// 	DPrintf("LeaderFunc LeaderCommit Node:%d, Term:%d, Role: %s CommittedIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), commitUntil)
+					// }
+					rf.lastApplied = commitUntil
+					rf.commitIndex = commitUntil
+
 					rf.persist()
+					rf.mu.Unlock()
 
 					time.Sleep(HEARTBEAT * time.Millisecond)
 				}
@@ -555,46 +587,38 @@ func (rf *Raft) LeaderFunc() {
 		}else{
 			go func(i int) {
 				for rf.role == LEADER {
+					rf.mu.Lock()
+					args := AppendEntriesArgs{rf.currentTerm, rf.me, rf.nextIndex[i]-1, rf.log[rf.nextIndex[i]-1].Term, nil, rf.commitIndex}
+					if rf.nextIndex[i] <  len(rf.log) {
+						args.Entry = rf.log[rf.nextIndex[i]:]
+					}
+					rf.mu.Unlock()
 
-					for true {
-						if rf.role != LEADER{
-							break
-						}
-						rf.mu.Lock()
-						var args AppendEntriesArgs
-						args.Term = rf.currentTerm
-						args.LeaderId = rf.me
-						args.PrevLogIndex = rf.nextIndex[i] - 1
-						args.PrevLogTerm = rf.log[args.PrevLogIndex].Term
-						args.LeaderCommit = rf.commitIndex
-						
-						if rf.nextIndex[i] <  len(rf.log) {
-							args.Entry = rf.log[rf.nextIndex[i]:]
-						}
-						rf.mu.Unlock()
+					reply := AppendEntriesReply{}
+					// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d", rf.me, rf.currentTerm, StringRole(rf.role), i)
+					if rf.sendAppendEntries(i, args, &reply) {
 
-						var reply AppendEntriesReply
-						if rf.sendAppendEntries(i, args, &reply) {
-							if args.Term != rf.currentTerm || reply.Term > args.Term {
-								if reply.Term > args.Term {
-									rf.mu.Lock()
-									rf.currentTerm = reply.Term
-									rf.votedFor = -1
-									rf.role = FOLLOWER
-									rf.setRoleCh <- true
-									rf.persist()
-									rf.mu.Unlock()
-								}
-							}else{
-								if reply.Success {
-									rf.matchIndex[i] = reply.NextIndex - 1
-									rf.nextIndex[i] = reply.NextIndex
-								} else {
-									rf.nextIndex[i] = reply.NextIndex
-								}
+						if reply.Term > rf.currentTerm {
+							rf.mu.Lock()
+							// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d, Term: %d // ForcedToBeFOLLOWER", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.Term)
+							rf.currentTerm = reply.Term
+							rf.votedFor = -1
+							rf.role = FOLLOWER
+							rf.setRoleCh <- true
+							rf.persist()
+							rf.mu.Unlock()
+						}else{
+							if reply.Success {
+								// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d Success, NextIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.NextIndex)
+								rf.matchIndex[i] = reply.NextIndex - 1
+								rf.nextIndex[i] = reply.NextIndex
+							} else {
+								// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d NotSuccess, NextIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.NextIndex)
+								rf.nextIndex[i] = reply.NextIndex
 							}
-							break
 						}
+					}else{
+						// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d TimeOut", rf.me, rf.currentTerm, StringRole(rf.role), i)
 					}
 					time.Sleep(HEARTBEAT * time.Millisecond)
 				}
