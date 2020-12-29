@@ -288,10 +288,10 @@ func (rf *Raft) AppendEntries(args AppendEntriesArgs, reply *AppendEntriesReply)
 			if len(args.Entry) != 0 {
 				for i:=0; i < len(args.Entry); i++ {
 					entry := args.Entry[i]
-					curIndex := entry.Index
-					if curIndex < len(rf.log) {
-						if entry.Term != rf.log[curIndex].Term {
-							rf.log = append(rf.log[:curIndex], entry)
+					tmp := entry.Index
+					if tmp < len(rf.log) {
+						if entry.Term != rf.log[tmp].Term {
+							rf.log = append(rf.log[:tmp], entry)
 						}
 					}else {
 						rf.log = append(rf.log, args.Entry[i:]...)
