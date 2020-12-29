@@ -182,8 +182,10 @@ func (rf *Raft) RequestVote(args RequestVoteArgs, reply *RequestVoteReply) {
 		if rf.currentTerm < args.Term {
 			rf.currentTerm = args.Term
 			rf.votedFor = -1
-			rf.role = FOLLOWER
-			rf.setRoleCh <- true
+			if (rf.role != FOLLOWER){
+				rf.role = FOLLOWER
+				rf.setRoleCh <- true
+			}
 		}
 		reply.Term = rf.currentTerm
 
@@ -241,11 +243,13 @@ type AppendEntriesArgs struct {
 	Entry []LogEntry
 	LeaderCommit int
 }
+
 type AppendEntriesReply struct {
 	Term    int
 	Success bool
 	NextIndex int
 }
+
 func (rf *Raft) AppendEntries(args AppendEntriesArgs, reply *AppendEntriesReply) {
 	// DPrintf("Received AppendEntries Node:%d, Term:%d, Role: %s, from Node:%d Term: %d", rf.me, rf.currentTerm, StringRole(rf.role), args.LeaderId, args.Term)
 
@@ -299,22 +303,13 @@ func (rf *Raft) AppendEntries(args AppendEntriesArgs, reply *AppendEntriesReply)
 				reply.NextIndex = args.PrevLogIndex + 1
 			}
 
-			commitUntil := rf.commitIndex
-			if args.LeaderCommit > rf.commitIndex {
-				if args.LeaderCommit < reply.NextIndex - 1 {
-					commitUntil = args.LeaderCommit
-				}else {
-					commitUntil = reply.NextIndex - 1
-				}
-			}
-			for i:=rf.commitIndex+1 ; i <= commitUntil; i++ {
+			i := rf.commitIndex+1
+			for i=rf.commitIndex+1 ; i <= args.LeaderCommit && i <= len(rf.log); i++ {
 				rf.applyCh <- ApplyMsg{i, rf.log[i].Command, false, nil}
 				rf.lastApplied = i
 			}
-			// if rf.commitIndex < commitUntil{
-			// 	DPrintf("Received AppendEntries Node:%d, Term:%d, Role: %s CommittedIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), commitUntil)
-			// }
-			rf.commitIndex = commitUntil
+			
+			rf.commitIndex = i-1
 		}
 	}
 	rf.persist()
@@ -352,7 +347,6 @@ func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *App
 //
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.mu.Lock()
-
 	index := len(rf.log)
 	term := rf.currentTerm
 	isLeader := false
@@ -375,8 +369,9 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 func (rf *Raft) Kill() {
 	// Your code here, if desired.
 	rf.mu.Lock()
-	defer rf.mu.Unlock()
 	rf.isKilled = true
+	rf.role = 0
+	rf.mu.Unlock()
 }
 
 //
@@ -418,8 +413,6 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
 
-	rand.Seed(time.Now().UnixNano())
-
 	go rf.MainLoop()
 	go rf.ElectionTimer()
 
@@ -439,7 +432,8 @@ func (rf *Raft) MainLoop() {
 		case LEADER:
 			// DPrintf("MainLoop Node:%d, Term:%d, Role: %s", rf.me, rf.currentTerm, StringRole(rf.role))
 			go rf.LeaderFunc()
-			<-rf.setRoleCh		
+			<-rf.setRoleCh
+		default:
 		}
 	}
 }
@@ -524,15 +518,15 @@ func (rf *Raft) LeaderElection() {
 			}
 			if agree >= len(rf.peers)/2 + 1 {
 				// DPrintf("LeaderElection Result:LEADER Node:%d, Term:%d, Role: %s agree: %d disagree: %d total: %d", rf.me, rf.currentTerm, StringRole(rf.role), agree, disagree, len(rf.peers))
-                rf.mu.Lock()
+				rf.mu.Lock()
 				rf.role = LEADER
-                rf.mu.Unlock()
+				rf.mu.Unlock()
 				isVoting = false
 			}else if disagree >= len(rf.peers)/2 + 1 {
 				// DPrintf("LeaderElection Result:FOLLOWER Node:%d, Term:%d, Role: %s agree: %d disagree: %d total: %d", rf.me, rf.currentTerm, StringRole(rf.role), agree, disagree, len(rf.peers))
-                rf.mu.Lock()
+				rf.mu.Lock()
 				rf.role = FOLLOWER
-                rf.mu.Unlock()
+				rf.mu.Unlock()
 				isVoting = false
 			}else if agree + disagree == len(rf.peers){
 				// DPrintf("LeaderElection Result:CANDIDATE Node:%d, Term:%d, Role: %s agree: %d disagree: %d total: %d", rf.me, rf.currentTerm, StringRole(rf.role), agree, disagree, len(rf.peers))
@@ -547,12 +541,12 @@ func (rf *Raft) LeaderElection() {
 	rf.setRoleCh <- true
 }
 func (rf *Raft) LeaderFunc() {
-    rf.mu.Lock()
+	rf.mu.Lock()
 	for i:=0; i<len(rf.peers); i++ {
 		rf.nextIndex[i] = rf.log[len(rf.log)-1].Index + 1
 		rf.matchIndex[i] = 0
 	}
-    rf.mu.Unlock()
+	rf.mu.Unlock()
 
 	for i:=0; i<len(rf.peers); i++ {
 		if i == rf.me {
@@ -579,12 +573,11 @@ func (rf *Raft) LeaderFunc() {
 						rf.applyCh <- ApplyMsg{j, rf.log[j].Command, false, nil}
 					}
 					// if rf.commitIndex < commitUntil{
-					// 	DPrintf("LeaderFunc LeaderCommit Node:%d, Term:%d, Role: %s CommittedIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), commitUntil)
+					//  DPrintf("LeaderFunc LeaderCommit Node:%d, Term:%d, Role: %s CommittedIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), commitUntil)
 					// }
 					rf.lastApplied = commitUntil
 					rf.commitIndex = commitUntil
 
-					// rf.persist()
 					rf.mu.Unlock()
 
 					time.Sleep(HEARTBEAT * time.Millisecond)
@@ -603,7 +596,7 @@ func (rf *Raft) LeaderFunc() {
 					reply := AppendEntriesReply{}
 					// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d", rf.me, rf.currentTerm, StringRole(rf.role), i)
 					if rf.sendAppendEntries(i, args, &reply) {
-                        rf.mu.Lock()
+						rf.mu.Lock()
 						if reply.Term > rf.currentTerm {
 							// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d, Term: %d // ForcedToBeFOLLOWER", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.Term)
 							rf.currentTerm = reply.Term
@@ -612,7 +605,6 @@ func (rf *Raft) LeaderFunc() {
 							rf.setRoleCh <- true
 							rf.persist()
 						}else{
-                            // rf.mu.Lock()
 							if reply.Success {
 								// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d Success, NextIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.NextIndex)
 								rf.matchIndex[i] = reply.NextIndex - 1
@@ -621,9 +613,8 @@ func (rf *Raft) LeaderFunc() {
 								// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d NotSuccess, NextIndex: %d", rf.me, rf.currentTerm, StringRole(rf.role), i, reply.NextIndex)
 								rf.nextIndex[i] = reply.NextIndex
 							}
-                            // rf.mu.Unlock()
 						}
-                        rf.mu.Unlock()
+						rf.mu.Unlock()
 					}//else{
 						// DPrintf("LeaderFunc sendAppendEntries Node:%d, Term:%d, Role: %s, to Node: %d TimeOut", rf.me, rf.currentTerm, StringRole(rf.role), i)
 					//a}
